@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/YOUR_USERNAME/taskflow'  # Replace with your repo
+    repoURL: 'https://github.com/dmolio/taskflow' # Replace with your repo
     path: k8s
     targetRevision: HEAD
   destination:
