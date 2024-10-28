@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, X } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 interface DatePickerProps {
   date: Date | null;
