@@ -61,15 +61,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.56.1
+          
+      - name: Run Trivy vulnerability scanner with retry
+        uses: nick-fields/retry@v2
         with:
-          image-ref: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            trivy image --no-progress --exit-code 1 \
+              --ignore-unfixed \
+              --severity HIGH,CRITICAL \
+              --format table \
+              ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
           
       - name: Tag and push Docker image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -89,10 +96,8 @@ jobs:
         if: ${{ success() }}
         run: |
           echo "Pipeline completed successfully!"
-          # Add your notification service here (Slack, Discord, etc.)
           
       - name: Notify Failure
         if: ${{ failure() }}
         run: |
           echo "Pipeline failed!"
-          # Add your notification service here (Slack, D
